@@ -141,3 +141,6 @@ fabric.properties
 
 .idea/
 .clang_complete
+
+
+/cmake-build-debug/
