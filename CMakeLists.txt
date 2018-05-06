@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(map_sharing_info_based_exploration)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+ add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -10,7 +10,8 @@ project(map_sharing_info_based_exploration)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  std_msgs
+  geometry_msgs
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -71,6 +72,8 @@ find_package(catkin REQUIRED COMPONENTS
 # generate_messages(
 #   DEPENDENCIES
 #   std_msgs
+#   geometry_msgs
+#   sensor_msgs
 # )
 
 ################################################
@@ -103,9 +106,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES map_sharing_info_based_exploration
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  INCLUDE_DIRS include
+  LIBRARIES map_sharing_info_based_exploration
+  CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -116,7 +119,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -153,6 +156,9 @@ include_directories(
 #############
 ## Install ##
 #############
+
+ADD_EXECUTABLE(wanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp)
+TARGET_LINK_LIBRARIES(wanderer_sim ${catkin_LIBRARIES})
 
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html

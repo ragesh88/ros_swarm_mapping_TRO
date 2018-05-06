@@ -30,6 +30,8 @@
 #include<geometry_msgs/Twist.h>
 
 // C++ library header files
+#include<iostream>
+#include<string>
 #include<vector>
 
 
@@ -42,6 +44,8 @@
 // typedef types
 typedef double meters;
 
+// Short namespaces names
+namespace planner=NS_my_planner;
 
 namespace NS_my_robot{
 
@@ -64,14 +68,16 @@ class Robot{
   uint robot_id;
   /// name of the robot
   std::string robot_name;
+  /// To store the robot velocity as a twist
+  geometry_msgs::Twist velocity;
   /// To display output
   bool verbose = false;
   /// the attribute to store the laser scan message
-  sensor_msgs::LaserScan laser_scan;
+  std::vector<float> laser_scan;
   /// the robot store their time of encounter with others(seconds)
   std::vector<double> last_communication;
   /// The pointer to the planner
-  myPlanner::base_planner *planner{NULL};
+  planner::base_planner *planner;
 
   // Ros variables
   ros::NodeHandle nh;
@@ -83,6 +89,9 @@ class Robot{
   ros::Publisher pub_cmd_vel;
 
  public:
+
+  // Constructor
+  Robot(uint robot_id_, std::string robot_name_, planner::base_planner* planner_);
 
   /// Static variable to generate robot id
   //static int gen_id;
@@ -100,7 +109,16 @@ class Robot{
   void laser_scanner_callback(const sensor_msgs::LaserScan::ConstPtr& laser_data);
 
   // Publishers
-  void publish(geometry_msg::Twist velocity);
+  void publish(geometry_msgs::Twist velocity);
+
+  // velocity update functions
+  void set_x_speed(double x);
+
+  void set_y_speed(double y);
+
+  void set_turn_speed(double a);
+
+  void reset_velocity();
 
   void move();
 

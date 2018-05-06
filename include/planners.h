@@ -5,13 +5,25 @@
 #ifndef MAP_SHARING_INFO_BASED_EXPLORATION_PLANNERS_H
 #define MAP_SHARING_INFO_BASED_EXPLORATION_PLANNERS_H
 
+////////////////////////////////////////////////////////////////////////////////
+// My naming conventions for the project
+// Put header files separated different category and in alphabetical order
+// unless there some compatibility issue between the header files
+// macros and const : ALL_IN_CAPS
+// namespace : NS_prefix_small_letter_with_underscore
+// class and structs : First_letter_caps_with_underscore
+// functions and variables: all_small_letters
+/////////////////////////////////////////////////////////////////////////////////
+
+
 // ros libraries
 #include<ros/ros.h>
 #include "geometry_msgs/Vector3.h"
 #include<geometry_msgs/Twist.h>
 
 // C++ library header files
-#include<vector>
+#include <queue>
+#include <vector>
 
 
 // C library header files
@@ -22,8 +34,15 @@
 
 // typedef types
 typedef double meters;
-typedef geometry_msgs::Vector3 Pose;
-typedef geometry_msgs::Vector3 Velocity;
+typedef double radians;
+typedef geometry_msgs::Twist Velocity;
+
+struct Pose{
+  meters x;
+  meters y;
+  radians a;
+};
+
 /**
  * The planner is an abstract class for all planner for the robot.
  * Any planner written for the robot should inherit from base planner
@@ -76,8 +95,8 @@ struct via_points {
    */
   MOTION_MODES modes = START;
   double motion_end_time = 0;
-  Velocity vel_control{0.0, 0.0, 0.0, 0.0};
-  Pose des_pose{0.0, 0.0, 0.0, 0.0};
+  Velocity vel_control;
+  Pose des_pose{0.0, 0.0, 0.0};
   bool computed_desPose = false;
 };
 
@@ -94,8 +113,8 @@ class base_planner {
    */
   double planTime = 0;
   double planStartTime = 0;
-  Pose startPose {0.0, 0.0, 0.0, 0.0};
-  Velocity robotTwist{0.0, 0.0, 0.0, 0.0};
+  Pose startPose {0.0, 0.0, 0.0};
+  Velocity robotTwist;
 
  protected:
 
@@ -115,8 +134,8 @@ class base_planner {
   base_planner(double pTime, double pSTime, Pose P, Velocity V) :
       planTime{pTime},
       planStartTime{pSTime},
-      startPose(P.x, P.y, P.z, P.a),
-      robotTwist(V.x, V.y, V.z, V.a) {
+      startPose(P),
+      robotTwist(V) {
     /**
      * constructor with parameters
      * \param pTime : the time for which motion has to be planned
