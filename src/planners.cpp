@@ -16,7 +16,7 @@
 
 using namespace NS_my_planner;
 
-void base_planner::generate_path(double start_time) {
+void base_planner::generate_path(double start_time, const Pose& P) {
   via_points point;
 
   set_planStartTime(start_time);
@@ -25,7 +25,7 @@ void base_planner::generate_path(double start_time) {
   point.modes = MOTION_MODES::ROTATION_Z;
   point.motion_end_time = planStartTime + planTime / 2;
   point.vel_control.angular.z = robotTwist.angular.z;
-  point.des_pose = Pose{startPose.x + 0.0, startPose.y + 0.0, startPose.a +  M_PI / 4};
+  point.des_pose = Pose{P.x + 0.0, P.y + 0.0, P.a +  M_PI / 4};
   point.computed_desPose = true;
 
   path.push(point); //  pushed the first point

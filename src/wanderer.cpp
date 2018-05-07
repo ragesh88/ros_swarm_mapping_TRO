@@ -30,14 +30,20 @@
 
 // local header files
 #include "my_robot.h"
+#include "planners.h"
 #include "command_line_parser.h"
 
 // Short name for the namespaces
 namespace clp=NS_rag_command_line_parser;
 namespace rob=NS_my_robot;
 
+
 int main(int argc, char** argv)
 {
+  // robot speed parameters
+  static const double cruisesSpeed = 0.4;
+  static const double turnSpeed = 0.2;
+
   // parse the inputs
   clp::CommandLineParser cml_parser(argc, argv);
 
@@ -55,8 +61,20 @@ int main(int argc, char** argv)
   // Initializing the ROS node
   ros::init(argc, argv,"wanderer_node");
 
+  // Velocity object
+  Velocity velocity;
+  velocity.linear.x=cruisesSpeed;
+  velocity.linear.y=0;
+  velocity.linear.z=0;
+  velocity.angular.x=0;
+  velocity.angular.y=0;
+  velocity.angular.z=turnSpeed;
+
+  // Create a planner object
+  NS_my_planner::base_planner planner{10, 0, velocity};
+
   // Create a robot object
-  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}};
+  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner};
 
 
   // ROS loop rate

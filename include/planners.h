@@ -17,9 +17,9 @@
 
 
 // ros libraries
-#include<ros/ros.h>
+#include <ros/ros.h>
 #include "geometry_msgs/Vector3.h"
-#include<geometry_msgs/Twist.h>
+#include <geometry_msgs/Twist.h>
 
 // C++ library header files
 #include <queue>
@@ -131,16 +131,14 @@ class base_planner {
 
   }
 
-  base_planner(double pTime, double pSTime, Pose P, Velocity V) :
+  base_planner(double pTime, double pSTime, Velocity V) :
       planTime{pTime},
       planStartTime{pSTime},
-      startPose(P),
       robotTwist(V) {
     /**
      * constructor with parameters
      * \param pTime : the time for which motion has to be planned
      * \param pSTime : the start time of the planner
-     * \param P : the pose of the robot at the start of planning
      */
 
   }
@@ -187,7 +185,7 @@ class base_planner {
 
   // other functions
   ///The function generates path for a base planner
-  virtual void generate_path(double start_time);
+  virtual void generate_path(double start_time, const Pose& P);
 
   void delete_path() {
     /// The function deletes the path stored in the variable

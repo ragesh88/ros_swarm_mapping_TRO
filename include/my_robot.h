@@ -25,18 +25,19 @@
 //#include <Stage-4.3/stage.hh>
 
 // ros libraries
-#include<ros/ros.h>
-#include<sensor_msgs/LaserScan.h>
-#include<geometry_msgs/Twist.h>
+#include <ros/ros.h>
+#include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
+#include <sensor_msgs/LaserScan.h>
 
 // C++ library header files
-#include<iostream>
-#include<string>
-#include<vector>
+#include <iostream>
+#include <string>
+#include <vector>
 
 
 // C library header files
-
+#include <cmath>
 
 // local header files
 #include "planners.h"
@@ -44,12 +45,12 @@
 // typedef types
 typedef double meters;
 
-// Short namespaces names
-namespace planner=NS_my_planner;
+
 
 namespace NS_my_robot{
 
 class Robot{
+
 
   // Constant Private attributes
   /// Path to save the robot map
@@ -70,20 +71,26 @@ class Robot{
   std::string robot_name;
   /// To store the robot velocity as a twist
   geometry_msgs::Twist velocity;
+  /// To store and update robot position using true position data
+  Pose abs_pose;
+  /// Obstacle avoidance variable
+  long int avoidCount, randCount;
   /// To display output
   bool verbose = false;
   /// the attribute to store the laser scan message
-  std::vector<float> laser_scan;
+  std::vector<double> laser_scan;
   /// the robot store their time of encounter with others(seconds)
   std::vector<double> last_communication;
   /// The pointer to the planner
-  planner::base_planner *planner;
+  NS_my_planner::base_planner *planner;
+
 
   // Ros variables
   ros::NodeHandle nh;
 
   // Subscribers
   ros::Subscriber sub_laser_scan;
+  ros::Subscriber sub_abs_pose;
 
   // Publishers
   ros::Publisher pub_cmd_vel;
@@ -91,7 +98,7 @@ class Robot{
  public:
 
   // Constructor
-  Robot(uint robot_id_, std::string robot_name_, planner::base_planner* planner_);
+  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_);
 
   /// Static variable to generate robot id
   //static int gen_id;
@@ -106,10 +113,14 @@ class Robot{
   static bool any_neighbor(int robot_id, std::vector<int>& neighbors);
 
   // Laser scanner Callback Method
-  void laser_scanner_callback(const sensor_msgs::LaserScan::ConstPtr& laser_data);
+  void laser_scanner_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
+
+  // base pose ground truth Callback method
+  void base_pose_ground_truth_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
   // Publishers
   void publish(geometry_msgs::Twist velocity);
+  void publish();
 
   // velocity update functions
   void set_x_speed(double x);

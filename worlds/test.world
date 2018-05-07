@@ -1,0 +1,147 @@
+# mySimple.world - basic world file example
+# Authors: Ragesh Kumar R
+# $Id$
+
+include "pioneer_modified.inc"
+include "map.inc"
+include "mySick.inc"
+
+# time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
+#quit_time 3600 # 3600 seconds of simulated time
+quit_time 2 # 900 seconds of simulated time
+
+# threads may speed things up here depending on available CPU cores & workload  
+threads 8
+
+
+# start the simulation in pause
+paused 1
+
+# spatial resolution of the underlying occupancy grid. Default is 0.02m.
+resolution 0.02
+
+# set the multiple of real time that Stage should try to achieve. Default is 1. 
+# set to 0 to go as fast as possible.
+speedup 0.000
+
+# configure the GUI window
+window
+(
+  size [ 700 700 ] # in pixels
+  scale 36.995   # pixels per meter
+  center [ -0.040  -0.274 ]
+  rotate [ 0.000  0.000 ]
+  			
+  show_data 1              # 1=on 0=off
+  # turn on taking screen shots
+  screenshots 0
+)
+
+# load an environment bitmap
+floorplan
+( 
+  name "mycave"
+  size [16.000 16.000 0.800]
+  pose [0.000 0.000 0.000 0.000]
+  bitmap "../bitmaps/mycave.png"
+)
+
+define SICK_noisy ranger
+(
+	color "blue"
+  	size [ 0.156 0.155 0.19 ] # dimensions from LMS200 data sheet
+  		
+	sensor
+	(				
+	  # factory settings for LMS200	
+	  range [ 0.0 2.0 ]
+	  pose [ 0 0 0.0 0 ]
+	  fov 180
+	  #samples 180
+	  samples 90 # still useful but much faster to compute
+	  color_rgba [0 0 1 0.15]
+	  noise [ 0.01 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
+	)
+)
+
+
+
+
+pioneer2dx
+(		  
+  # can refer to the robot by this name
+  #name "pio0"
+  # for identification using fiducial sensor
+  #fiducial_return 1
+  pose [ -6.946 -6.1 0.000 0.000 ] 
+
+  # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
+  sicklaser( 
+		pose [ 0.000 0.000 0.000 0.000 ] 
+		#noise [ 0.01 0.02 0.03 ]
+		#ctrl "lasernoise"
+		alwayson 1 # don't wait for a subscriber
+	) 
+  fiducial
+  (
+    pose [ 0 0 0 0 ]
+    range_max 2
+    range_max_id 2
+    fov 360
+  ) 
+  #SICK_noisy
+  #( 
+    #alwayson 1 # don't wait for a subscriber
+  #) 
+  # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
+  # you probably should comment this out when using simple.cfg with Player
+  #ctrl "mylevyWalker"
+
+  # report error-free position in world coordinates
+  localization "gps"
+  localization_origin [ 0 0 0 0 ]
+
+  #trail_length 400
+    
+)
+
+
+pioneer2dx
+(		  
+  # can refer to the robot by this name
+  #name "pio1"
+  # for identification using fiducial sensor
+  #fiducial_return 1
+  pose [ -6.946 -5.1 0.000 0.000 ] 
+
+  # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
+  sicklaser( 
+		pose [ 0.000 0.000 0.000 0.000 ] 
+		#noise [ 0.01 0.02 0.03 ]
+		#ctrl "lasernoise"
+		alwayson 1 # don't wait for a subscriber
+	) 
+  fiducial
+  (
+    pose [ 0 0 0 0 ]
+    range_max 2
+    range_max_id 2
+    fov 360
+  ) 
+  #SICK_noisy
+  #( 
+    #alwayson 1 # don't wait for a subscriber
+  #) 
+  # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
+  # you probably should comment this out when using simple.cfg with Player
+  #ctrl "mylevyWalker"
+
+  # report error-free position in world coordinates
+  localization "gps"
+  localization_origin [ 0 0 0 0 ]
+
+  #trail_length 400
+    
+)
+
+
