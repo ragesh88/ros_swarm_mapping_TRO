@@ -26,7 +26,7 @@
 
 
 // C library header files
-
+#include <stdio.h>
 
 // local header files
 #include "my_robot.h"
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
   velocity.angular.z=turnSpeed;
 
   // Create a planner object
-  NS_my_planner::base_planner planner{10, 0, velocity};
+  NS_my_planner::base_planner planner{50, 0, velocity};
 
   // Create a robot object
   rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner};
@@ -80,17 +80,17 @@ int main(int argc, char** argv)
   // ROS loop rate
   ros::Rate loop_rate(10);
 
-  geometry_msgs::Twist cmd_vel_msg;
-  cmd_vel_msg.linear.x=0.0;
-  cmd_vel_msg.linear.y=0.0;
-  cmd_vel_msg.linear.z=0.0;
-  cmd_vel_msg.angular.x=0.0;
-  cmd_vel_msg.angular.y=0.0;
-  cmd_vel_msg.angular.z=0.0;
+//  geometry_msgs::Twist cmd_vel_msg;
+//  cmd_vel_msg.linear.x=0.0;
+//  cmd_vel_msg.linear.y=0.0;
+//  cmd_vel_msg.linear.z=0.0;
+//  cmd_vel_msg.angular.x=0.0;
+//  cmd_vel_msg.angular.y=0.0;
+//  cmd_vel_msg.angular.z=0.0;
 
   while (ros::ok()){
     // Publish, Spin and Sleep
-    robot.publish(cmd_vel_msg);
+    robot.move();
     ros::spinOnce();
     loop_rate.sleep();
   }

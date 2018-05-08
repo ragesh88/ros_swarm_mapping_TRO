@@ -1,0 +1,9 @@
+<launch>
+    <!-- Start the stage simulation-->
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find map_sharing_info_based_exploration)/worlds/test.world" respawn="false"/>
+
+    <!-- Start the C++ executables as nodes to perform wanderer motion of the robots -->
+    <node pkg="map_sharing_info_based_exploration" type="wanderer_sim" name="wanderer_robot_0" args="-id 0"/>
+    <node pkg="map_sharing_info_based_exploration" type="wanderer_sim" name="wanderer_robot_1" args="-id 1"/>
+
+</launch>

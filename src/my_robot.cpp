@@ -76,6 +76,12 @@ void Robot::publish()
  * Publishes the velocity commands as messages as the attribute velocity
  */
 {
+  if (verbose){
+    std::cout<<"\n publishing the velocity \n";
+    std::cout<<"linear x = "<<velocity.linear.x;
+    std::cout<<"\n angular z = "<<velocity.angular.z<<std::endl;
+  }
+
   pub_cmd_vel.publish(velocity);
 }
 
@@ -97,6 +103,7 @@ void Robot::laser_scanner_callback(const sensor_msgs::LaserScan::ConstPtr& msg)
       laser_scan[i] = msg->ranges[i];
     }
   }
+
 }
 
 void Robot::base_pose_ground_truth_callback(const nav_msgs::Odometry::ConstPtr& msg)
@@ -180,8 +187,8 @@ void Robot::move()
   auto sample_count = laser_scan.size();
   if (verbose)
     printf("\n sample count laser :%lu \n", sample_count);
-  if (sample_count < 1)
-    throw "There is no laser data";
+  //if (sample_count < 1)
+    //throw "There is no laser data";
 
 
   // find the closest distance to the left and right and also check if
@@ -284,15 +291,14 @@ void Robot::move()
         switch (planner->get_path()->front().modes) {
           case NS_my_planner::MOTION_MODES::ROTATION_Z: velocity.linear.x=0;
             velocity.angular.z=planner->get_path()->front().vel_control.angular.z;
-            publish();
             break;
           case NS_my_planner::MOTION_MODES::TRANSLATION_X: velocity.angular.z=0;
             velocity.linear.x = planner->get_path()->front().vel_control.linear.x;
-            publish();
             break;
           default: printf("\nUndefined mode\n");
         }
       }
+      publish();
       if (planner->get_path()->front().computed_desPose) {
         // Move until the stage robot has reached the desired orientation up to a tolerance
         if (std::fabs(planner->get_path()->front().des_pose.a - abs_pose.a) < rad_tol) {

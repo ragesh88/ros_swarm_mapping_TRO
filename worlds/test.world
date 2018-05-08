@@ -7,22 +7,22 @@ include "map.inc"
 include "mySick.inc"
 
 # time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
-#quit_time 3600 # 3600 seconds of simulated time
-quit_time 2 # 900 seconds of simulated time
+quit_time 3600 # 3600 seconds of simulated time
+#quit_time 2 # 900 seconds of simulated time
 
 # threads may speed things up here depending on available CPU cores & workload  
 threads 8
 
 
 # start the simulation in pause
-paused 1
+paused 0
 
 # spatial resolution of the underlying occupancy grid. Default is 0.02m.
 resolution 0.02
 
 # set the multiple of real time that Stage should try to achieve. Default is 1. 
 # set to 0 to go as fast as possible.
-speedup 0.000
+speedup 1
 
 # configure the GUI window
 window
@@ -112,7 +112,7 @@ pioneer2dx
   #name "pio1"
   # for identification using fiducial sensor
   #fiducial_return 1
-  pose [ -6.946 -5.1 0.000 0.000 ] 
+  pose [ -6.946 -3.1 0.000 0.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
