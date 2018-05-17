@@ -144,3 +144,4 @@ fabric.properties
 
 
 /cmake-build-debug/
+/data/

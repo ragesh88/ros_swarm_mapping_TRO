@@ -13,8 +13,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 /***
- * This cpp file is used to generate executable to that can make the robot move like a wanderer
+ * This cpp file is used to generate executable to that can make the robot move according to a path planned which
+ * maximizes the Mutual Information between the map uncertainty and forward ranger sensor model
  */
+
 
 // ros libraries
 #include <geometry_msgs/Twist.h>
@@ -27,6 +29,10 @@
 
 // C library header files
 #include <stdio.h>
+
+// third party libraries
+#include <boost/math/constants/constants.hpp>
+#include <opencv2/opencv.hpp>
 
 // local header files
 #include "my_robot.h"
@@ -60,6 +66,11 @@ int main(int argc, char** argv)
 
   // Initializing the ROS node
   ros::init(argc, argv,"wanderer_node");
+
+  // opencv matrix for testing
+  cv::Mat og_{800, 800, CV_8U, cv::Scalar(255)};
+  std::cout<<boost::math::constants::root_two_pi<double>();
+
 
   // Velocity object
   Velocity velocity;

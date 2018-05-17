@@ -1,0 +1,10 @@
+//
+// Created by root on 5/17/18.
+//
+
+#ifndef PROJECT_RAY_TRACE_ITERATOR_H
+#define PROJECT_RAY_TRACE_ITERATOR_H
+
+
+
+#endif //PROJECT_RAY_TRACE_ITERATOR_H

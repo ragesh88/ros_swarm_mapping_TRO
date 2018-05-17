@@ -16,6 +16,16 @@ find_package(catkin REQUIRED COMPONENTS
 
 )
 
+# Find the required OPENCV packages
+find_package( OpenCV REQUIRED core imgproc highgui)
+
+# Find the Boost package
+find_package( Boost COMPONENTS date_time filesystem system program_options REQUIRED)
+
+# The OpenCV packages used for this project
+SET(OpenCV_USED_LIBS opencv_core opencv_imgproc opencv_highgui)
+
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -161,6 +171,10 @@ include_directories(
 
 ADD_EXECUTABLE(wanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp)
 TARGET_LINK_LIBRARIES(wanderer_sim ${catkin_LIBRARIES})
+
+ADD_EXECUTABLE(MIwanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp)
+TARGET_LINK_LIBRARIES(MIwanderer_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
+
 
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html

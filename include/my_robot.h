@@ -54,7 +54,7 @@ class Robot{
 
   // Constant Private attributes
   /// Path to save the robot map
-  std::string img_path{"./robot"};
+  std::string data_path{"/home/ragesh/Documents/catkin_ws/src/map_sharing_info_based_exploration/data/robot"};
   /// The extension indicating the map image format
   const std::string img_type{".png"};
   /// the robot should not exchange information if the
@@ -84,6 +84,12 @@ class Robot{
   /// The pointer to the planner
   NS_my_planner::base_planner *planner;
 
+  // variables to store entropy and coverage
+  /// a list to store the entropy at various times
+  std::list<std::pair<double, double>> map_entropy;
+  /// a list to store the coverage at various times
+  std::list<std::pair<double, double>> map_coverage;
+
 
   // Ros variables
   ros::NodeHandle nh;
@@ -97,20 +103,27 @@ class Robot{
 
  public:
 
+  /// To display output
+  bool verbose = false;
+  /// The pointer to occupancy grid map
+  occupancy_grid::occupancyGrid2D<double, int> *occ_grid_map{NULL};
+
   // Constructor
   Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_);
 
-  /// Static variable to generate robot id
+  // TODO use a service to identify if any robot is nearby
+  // Static variable to generate robot id
   //static int gen_id;
-  ///Static variable to store the pointers to all robots
-  /// in the swarm
-  static std::vector<Robot *> swarm;
+  //Static variable to store the pointers to all robots
+  // in the swarm
+  //static std::vector<Robot *> swarm;
 
   // Static member function
-  /// Static function to update the static variable swarm
-  static void swarm_update(Robot* member);
-  /// Static function if a robot is close to another robot by a distance d
-  static bool any_neighbor(int robot_id, std::vector<int>& neighbors);
+  //static void update_id();
+  // Static function to update the static variable swarm
+  //static void swarm_update(Robot* member);
+  // Static function if a robot is close to another robot by a distance d
+  //static bool any_neighbor(int robot_id, std::vector<int>& neighbors);
 
   // Laser scanner Callback Method
   void laser_scanner_callback(const sensor_msgs::LaserScan::ConstPtr& msg);
@@ -121,6 +134,17 @@ class Robot{
   // Publishers
   void publish(geometry_msgs::Twist velocity);
   void publish();
+
+  // get functions
+  int get_robot_id() const {
+    /// Returns the id of the robot
+    return robot_id;
+  }
+
+  std::string get_robot_name() const {
+    /// Returns the name of the robot
+    return robot_name;
+  }
 
   // velocity update functions
   void set_x_speed(double x);

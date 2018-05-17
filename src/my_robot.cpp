@@ -21,12 +21,15 @@ using namespace NS_my_robot;
 // Short namespace names
 //namespace planner=NS_my_planner;
 
+
+
 Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_):
     robot_id{robot_id_},
     planner{planner_},
     abs_pose{0.0, 0.0, 0.0},
     avoidCount{0},
-    randCount{0}
+    randCount{0},
+
 /**
  * Constructor for the robot class
  * @param robot_id_ : the id number of the robot
@@ -55,6 +58,7 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
   // Setting up the publisher to command velocity
   pub_cmd_vel = nh.advertise<geometry_msgs::Twist>(robot_name + "/cmd_vel", 100);
 }
+
 
 // publisher methods
 
