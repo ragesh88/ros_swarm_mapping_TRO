@@ -21,6 +21,7 @@
 // ros libraries
 #include <geometry_msgs/Twist.h>
 #include <ros/ros.h>
+#include <ros/console.h>
 
 // C++ library header files
 #include <iostream>
@@ -116,6 +117,12 @@ int main(int argc, char** argv)
   while (ros::ok()){
     // Publish, Spin and Sleep
     robot.move();
+    robot.build_map();
+    ROS_INFO("\n Ros time now is %f ", ros::Time::now().toSec());
+    if (ros::Time::now().toSec()%20 == 0){
+      std::cout<<"in writing condition";
+      //robot.write_map_image();
+    }
     ros::spinOnce();
     loop_rate.sleep();
   }

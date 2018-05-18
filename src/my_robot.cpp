@@ -510,3 +510,36 @@ void Robot::write_map_entropy(std::string path, std::string prefix)
   f_out.close();
 
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void Robot::write_map_coverage(std::string path, std::string prefix)
+/**
+ * write data stored in the list map_coverage to a text file with file name prefix+robot_{id}_coverage.txt
+ * @param path : Path to store the text file ending with a /
+ * @param prefix : any prefix to be added to the file name
+ */
+{
+  if (map_coverage.size()==0){
+    std::cout<<"\nCoverage is not computed\n";
+    return;
+  }
+  std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_coverage.txt"};
+  std::cout<<"\n Writing to : "<<filename<<std::endl;
+
+  // write the list to a text file
+
+  std::ofstream f_out(filename);
+
+  if(!f_out) {
+    std::cout<<"File not opened \n";
+    return;
+  }
+
+  for(const auto& it : map_coverage){
+    f_out<<it.first<<" "<<it.second<<std::endl;
+  }
+  // closing the file stream
+  f_out.close();
+}
