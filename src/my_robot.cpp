@@ -49,6 +49,9 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
   velocity.angular.y=0.0;
   velocity.angular.z=0.0;
 
+  // setting up the data path for the robot
+  data_path = data_path + std::to_string(robot_id_) + "/";
+
 
   // Setting up the subscriber to laser ranger sensors
   sub_laser_scan = nh.subscribe(robot_name + "/base_scan", 10,
@@ -410,6 +413,7 @@ void Robot::write_map_image()
   count = std::string(9 - count.length(), '0') + count;
   std::string filename = data_path + robot_name + "_" + count + img_type;
   //std::cout<<"\n writing map as "<<filename<<std::endl;
+  ROS_INFO("\n writing map as %s \n", filename.c_str());
   try {
     // Writing as an image is at least 20 times faster than writing to an text file
     //auto start = clock();

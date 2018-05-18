@@ -62,7 +62,7 @@ int main(int argc, char** argv)
   {
     robot_number = cml_parser("-id");
     std::string robot_name = "/robot_" + robot_number;
-    std::cout << robot_name << std::endl;
+    std::cout << robot_name <<std::endl;
   }else{
     ROS_ERROR("Need to provide robot id");
   }
@@ -114,14 +114,20 @@ int main(int argc, char** argv)
 //  cmd_vel_msg.angular.y=0.0;
 //  cmd_vel_msg.angular.z=0.0;
 
+  long unsigned int pre_time=0;
+
   while (ros::ok()){
     // Publish, Spin and Sleep
+    //ROS_INFO("\n Ros time now is %f ", ros::Time::now().toSec());
     robot.move();
     robot.build_map();
-    ROS_INFO("\n Ros time now is %f ", ros::Time::now().toSec());
-    if (ros::Time::now().toSec()%20 == 0){
-      std::cout<<"in writing condition";
-      //robot.write_map_image();
+    // to do some action every 20 seconds
+    long unsigned int time_now = static_cast<long unsigned int>(ros::Time::now().toSec());
+    if (time_now%100 == 0 &&
+        (pre_time != time_now)){
+      //ROS_INFO("\n In condition ");
+      robot.write_map_image();
+      pre_time = time_now;
     }
     ros::spinOnce();
     loop_rate.sleep();
