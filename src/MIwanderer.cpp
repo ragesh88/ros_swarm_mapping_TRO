@@ -38,10 +38,12 @@
 #include "my_robot.h"
 #include "planners.h"
 #include "command_line_parser.h"
+#include "occupancyGrid.hpp"
 
 // Short name for the namespaces
 namespace clp=NS_rag_command_line_parser;
 namespace rob=NS_my_robot;
+namespace map=NS_occupancy_grid;
 
 
 int main(int argc, char** argv)
@@ -67,9 +69,17 @@ int main(int argc, char** argv)
   // Initializing the ROS node
   ros::init(argc, argv,"wanderer_node");
 
-  // opencv matrix for testing
-  cv::Mat og_{800, 800, CV_8U, cv::Scalar(255)};
-  std::cout<<boost::math::constants::root_two_pi<double>();
+  // The parameters for map object
+  const double min_x = -8; // in meters
+  const double min_y = -8; // in meters
+  const double cell_size_x = 0.02; // in meters
+  const double cell_size_y = 0.02; // in meters
+  const int n_cell_x = 800; // no of cells along x
+  const int n_cell_y = 800; // no of cells along y
+
+  // Create a map object
+
+  map::occupancyGrid2D<double, int> occ_grid{min_x, min_y, cell_size_x, cell_size_y, n_cell_x, n_cell_y};
 
 
   // Velocity object
@@ -86,6 +96,9 @@ int main(int argc, char** argv)
 
   // Create a robot object
   rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner};
+
+  // Assigning the map object to the robot
+  robot.occ_grid_map = &occ_grid;
 
 
 

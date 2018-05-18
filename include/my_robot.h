@@ -38,14 +38,18 @@
 
 // C library header files
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 // local header files
 #include "planners.h"
+#include "inverse_sensor_model.h"
+#include "occupancyGrid.hpp"
 
 // typedef types
 typedef double meters;
 
-
+// TODO rewrite the map merging functionality
 
 namespace NS_my_robot{
 
@@ -75,14 +79,13 @@ class Robot{
   Pose abs_pose;
   /// Obstacle avoidance variable
   long int avoidCount, randCount;
-  /// To display output
-  bool verbose = false;
   /// the attribute to store the laser scan message
-  std::vector<double> laser_scan;
+  //std::vector<double> laser_scan;
+  NS_occupancy_grid::LaserSensor laser_sensor;
   /// the robot store their time of encounter with others(seconds)
   std::vector<double> last_communication;
   /// The pointer to the planner
-  NS_my_planner::base_planner *planner;
+  NS_my_planner::base_planner* planner;
 
   // variables to store entropy and coverage
   /// a list to store the entropy at various times
@@ -106,10 +109,10 @@ class Robot{
   /// To display output
   bool verbose = false;
   /// The pointer to occupancy grid map
-  occupancy_grid::occupancyGrid2D<double, int> *occ_grid_map{NULL};
+  NS_occupancy_grid::occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
   // Constructor
-  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_);
+  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, double radial_noise=0.01);
 
   // TODO use a service to identify if any robot is nearby
   // Static variable to generate robot id
@@ -156,6 +159,20 @@ class Robot{
   void reset_velocity();
 
   void move();
+
+  void build_map();
+
+  void write_map_image();
+
+  void write_map_txt();
+
+  void add_map_entropy();
+
+  void add_map_coverage();
+
+  void write_map_entropy(std::string path, std::string prefix="");
+
+  void write_map_coverage(std::string path, std::string prefix="");
 
 
 };

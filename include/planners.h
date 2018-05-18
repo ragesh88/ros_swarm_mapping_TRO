@@ -185,7 +185,7 @@ class base_planner {
 
   // other functions
   ///The function generates path for a base planner
-  virtual void generate_path(double start_time, const Pose& P);
+  virtual void generate_path(double start_time);
 
   void delete_path() {
     /// The function deletes the path stored in the variable

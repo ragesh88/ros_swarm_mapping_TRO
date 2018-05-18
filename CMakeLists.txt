@@ -169,10 +169,12 @@ include_directories(
 ## Install ##
 #############
 
-ADD_EXECUTABLE(wanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp)
-TARGET_LINK_LIBRARIES(wanderer_sim ${catkin_LIBRARIES})
+ADD_EXECUTABLE(wanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp
+        src/inverse_sensor_model.cpp)
+TARGET_LINK_LIBRARIES(wanderer_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
 
-ADD_EXECUTABLE(MIwanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp)
+ADD_EXECUTABLE(MIwanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp
+        src/inverse_sensor_model.cpp)
 TARGET_LINK_LIBRARIES(MIwanderer_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
 
 
