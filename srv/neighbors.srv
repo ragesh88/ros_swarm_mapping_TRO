@@ -1,0 +1,5 @@
+# the service finds the numbers of neighbors of a robot in specified radius
+uint16 robot_id
+float32 radius
+---
+uint16[] neighbors

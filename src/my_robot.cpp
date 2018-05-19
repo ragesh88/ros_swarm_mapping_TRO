@@ -425,7 +425,7 @@ void Robot::write_map_image()
 
     image_count++;
   } catch (std::runtime_error &ex) {
-    fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+    ROS_ERROR("Exception converting image to PNG format: %s\n", ex.what());
 
   }
 
@@ -453,7 +453,7 @@ void Robot::write_map_txt()
 
     image_count++;
   } catch (std::runtime_error &ex) {
-    fprintf(stderr, "Exception writing the image to a text file: %s\n", ex.what());
+    ROS_ERROR("Exception writing the image to a text file: %s\n", ex.what());
 
   }
 
@@ -491,7 +491,7 @@ void Robot::write_map_entropy(std::string path, std::string prefix)
  * @param prefix : any prefix to be added to the file name
  */
 {
-  if (map_entropy.size()==0){
+  if (map_entropy.empty()){
     std::cout<<"\nEntropy is not computed\n";
     return;
   }
@@ -525,7 +525,7 @@ void Robot::write_map_coverage(std::string path, std::string prefix)
  * @param prefix : any prefix to be added to the file name
  */
 {
-  if (map_coverage.size()==0){
+  if (map_coverage.empty()){
     std::cout<<"\nCoverage is not computed\n";
     return;
   }
