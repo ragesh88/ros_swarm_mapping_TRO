@@ -61,15 +61,15 @@ int main(int argc, char** argv)
   if (cml_parser["-id"])
   {
     robot_number = cml_parser("-id");
-    std::string robot_name = "/robot_" + robot_number;
-    std::cout << robot_name <<std::endl;
   }else{
     ROS_ERROR("Need to provide robot id");
   }
 
   // Initializing the ROS node
-  ros::init(argc, argv,"wanderer_node");
-
+  std::string node_name{"MI_wanderer_node_" + robot_number};
+  ros::init(argc, argv, node_name);
+  // display the name of the node
+  ROS_INFO_STREAM("Initiated node : "<<ros::this_node::getName());
   // The parameters for map object
   const double min_x = -8; // in meters
   const double min_y = -8; // in meters
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
     if (time_now%100 == 0 &&
         (pre_time != time_now)){
       //ROS_INFO("\n In condition ");
-      robot.write_map_image();
+      //robot.write_map_image();
       pre_time = time_now;
     }
     ros::spinOnce();

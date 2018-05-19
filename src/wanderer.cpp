@@ -52,14 +52,14 @@ int main(int argc, char** argv)
   if (cml_parser["-id"])
   {
     robot_number = cml_parser("-id");
-    std::string robot_name = "/robot_" + robot_number;
-    std::cout << robot_name << std::endl;
   }else{
     ROS_ERROR("Need to provide robot id");
   }
 
   // Initializing the ROS node
   ros::init(argc, argv,"wanderer_node");
+  // display the name of the node
+  ROS_INFO_STREAM("Initiated node : "<<ros::this_node::getName());
 
   // Velocity object
   Velocity velocity;
