@@ -169,13 +169,19 @@ include_directories(
 ## Install ##
 #############
 
+# The wanderer executable for wanderer robot motion
 ADD_EXECUTABLE(wanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/wanderer.cpp src/planners.cpp
         src/inverse_sensor_model.cpp)
 TARGET_LINK_LIBRARIES(wanderer_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
 
-ADD_EXECUTABLE(MIwanderer_sim src/command_line_parser.cpp src/my_robot.cpp src/MIwanderer.cpp src/planners.cpp
+# The MI_Levy_walker executable for the MI based Levy walking
+ADD_EXECUTABLE(MI_Levy_walker_sim src/command_line_parser.cpp src/my_robot.cpp src/MIwanderer.cpp src/planners.cpp
         src/inverse_sensor_model.cpp)
-TARGET_LINK_LIBRARIES(MIwanderer_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(MI_Levy_walker_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
+
+# neighbors service excutable to get the neighbors of a robot
+ADD_EXECUTABLE(neighbors_srv src/command_line_parser.cpp src/neighbors_srv.cpp src/planners.cpp)
+TARGET_LINK_LIBRARIES(neighbors_srv ${catkin_LIBRARIES} )
 
 
 # all install targets should use catkin DESTINATION variables

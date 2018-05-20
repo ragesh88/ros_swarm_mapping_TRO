@@ -22,9 +22,11 @@
 
 
 // ros libraries
-#include <geometry_msgs/Twist.h>
+// ros libraries
 #include <ros/ros.h>
 #include <ros/console.h>
+#include <nav_msgs/Odometry.h>
+
 
 // C++ library header files
 #include <functional>
@@ -37,28 +39,40 @@
 #include <stdio.h>
 
 // third party libraries
+#include "boost/bind.hpp"
 
 // local header files
 #include "planners.h"
 #include "command_line_parser.h"
 
+// Short name for the namespaces
+namespace clp=NS_rag_command_line_parser;
 
 
-Class Neighbors{
+
+class Neighbors{
   /**
    * A class to handle the functionality to find the neighbors of a robot in a specified radius
    */
 
   /// total number of robots in the swarm
-  int no_of_robots;
+  uint no_of_robots;
+  /// name of the robot
+  std::string robot_name;
   /// vector to update the pose of every robot
   std::vector<Pose> robot_poses;
+
+    // Ros variables
+    ros::NodeHandle nh;
+
+    // Subscribers
+    std::vector<ros::Subscriber> sub_robot_pose;
 
     public:
 
     // constructor
 
-    neighbors(int no_of_robots_);
+    Neighbors(uint no_of_robots_, std::string robot_name_, std::string topic_);
 
     // Call back functions
     /// Callback method to Subscribe to the pose of  robots
@@ -66,8 +80,37 @@ Class Neighbors{
 
 };
 
+///////////////////////////////////////////////////////////////////////////
+//                definitions of class Neighbors methods and attributes
 
-int main()
+// constructor
+
+Neighbors::Neighbors(uint no_of_robots_, std::string robot_name_, std::string topic_):
+                    no_of_robots{no_of_robots_},
+                    robot_name{robot_name_}
+{
+  namespace ph = std::placeholders; // adds visibility of _1, _2, _3,...
+
+  // Setting up the subscriber to error free gps pose of each robot
+  for(int i =0; i<no_of_robots_; i++){
+
+    sub_robot_pose.emplace_back(nh.subscribe<nav_msgs::Odometry>(robot_name_ + std::to_string(i) + topic_, 10,
+                                                                 boost::bind(&Neighbors::robot_poses_callback,this,_1, i)));
+  }
+}
+
+
+
+void Neighbors::robot_poses_callback(const nav_msgs::Odometry::ConstPtr &msg, int robot_id)
+{
+
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+int main(int argc, char** argv)
 {
   // parse the inputs
   clp::CommandLineParser cml_parser(argc, argv);
@@ -82,11 +125,11 @@ int main()
   }
 
   // Initializing the ROS node
-  std::string node_name{"Neighbors_node_" + robot_number};
+  std::string node_name{"Neighbors_node" };
   ros::init(argc, argv, node_name);
   // display the name of the node
   ROS_INFO_STREAM("Initiated node : "<<ros::this_node::getName());
 
-  // create a Neighbor object
-
+  // create a Neighbors object
+  Neighbors neighbors{static_cast<uint>(std::stoi(no_of_robots)), "robot_", "/base_pose_ground_truth"};
 }
