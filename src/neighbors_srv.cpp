@@ -27,13 +27,66 @@
 #include <ros/console.h>
 
 // C++ library header files
+#include <functional>
 #include <iostream>
 #include <string>
+#include <vector>
 
 
 // C library header files
 #include <stdio.h>
 
 // third party libraries
-#include <boost/math/constants/constants.hpp>
-#include <opencv2/opencv.hpp>
+
+// local header files
+#include "planners.h"
+#include "command_line_parser.h"
+
+
+
+Class Neighbors{
+  /**
+   * A class to handle the functionality to find the neighbors of a robot in a specified radius
+   */
+
+  /// total number of robots in the swarm
+  int no_of_robots;
+  /// vector to update the pose of every robot
+  std::vector<Pose> robot_poses;
+
+    public:
+
+    // constructor
+
+    neighbors(int no_of_robots_);
+
+    // Call back functions
+    /// Callback method to Subscribe to the pose of  robots
+    void robot_poses_callback(const nav_msgs::Odometry::ConstPtr& msg, int robot_id);
+
+};
+
+
+int main()
+{
+  // parse the inputs
+  clp::CommandLineParser cml_parser(argc, argv);
+
+  // Parse input arguments for robot id.
+  std::string no_of_robots;
+  if (cml_parser["-n"])
+  {
+    no_of_robots = cml_parser("-n");
+  }else{
+    ROS_ERROR("Need to provide number robots using -n option");
+  }
+
+  // Initializing the ROS node
+  std::string node_name{"Neighbors_node_" + robot_number};
+  ros::init(argc, argv, node_name);
+  // display the name of the node
+  ROS_INFO_STREAM("Initiated node : "<<ros::this_node::getName());
+
+  // create a Neighbor object
+
+}
