@@ -460,6 +460,25 @@ void Robot::build_map()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+void merger(cv::Mat &map1, const cv::Mat &map2)
+/**
+ * The function combines map1 and map2 to store it in map1
+ * @param map1 : occupancy grid map of robot 1
+ * @param map2 : occupancy grid map of robot 2
+ */
+{
+  // power protocol for probability
+  cv::Mat tempMap1, tempMap2;
+  map1.convertTo(tempMap1, CV_32F);
+  map2.convertTo(tempMap2, CV_32F);
+  tempMap1 = tempMap1.mul(tempMap2);
+  cv::sqrt(tempMap1, tempMap2);
+  tempMap2.convertTo(map1, CV_8U);
+  ROS_ERROR("finished merging");
+
+}
+
 void Robot::merge_map()
 /**
  * The function merge the map between robot and its neighbors
@@ -481,7 +500,17 @@ void Robot::merge_map()
         }
         // check if ample time has past since the map merger
         if (last_communication[nbh] + comm_delay < ros::Time::now().toSec()){
-          // merger();
+          // use a client to get the map of the neighbour
+          map_sharing_info_based_exploration::get_map srv; // service object
+          bool success = get_map_client[nbh].call(srv);
+          if(success){
+            // if the service call was successful merge maps
+            auto map = cv_bridge::toCvCopy(srv.response.map, srv.response.map.encoding);
+            merger(occ_grid_map->og_, map->image);
+          }else{
+            ROS_ERROR("Failed to call get map service of robot with id %d by robot %d", nbh, robot_id);
+          }
+
           last_communication[nbh] = ros::Time::now().toSec();
         }
       }

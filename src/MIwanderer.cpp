@@ -121,10 +121,10 @@ int main(int argc, char** argv)
     //ROS_INFO("\n Ros time now is %f ", ros::Time::now().toSec());
     robot.move();
     robot.build_map();
-    robot.update_neighbors();
+    robot.merge_map();
     // to do some action every 20 seconds
     long unsigned int time_now = static_cast<long unsigned int>(ros::Time::now().toSec());
-    if (time_now%100 == 0 &&
+    if (time_now%30 == 0 &&
         (pre_time != time_now)){
       //ROS_INFO("\n In condition ");
       //robot.write_map_image();
