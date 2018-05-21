@@ -31,6 +31,7 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
 #include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
 
 // service header
 #include "map_sharing_info_based_exploration/neighbors.h"
@@ -46,6 +47,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+
+// third party libraries
+#include <boost/bind.hpp>
 
 // local header files
 #include "planners.h"
@@ -108,15 +112,22 @@ class Robot{
   // Ros variables
   ros::NodeHandle nh;
 
+  // image transport handle
+  image_transport::ImageTransport it;
+
   // Subscribers
   /// Subscriber to laser scan data
   ros::Subscriber sub_laser_scan;
   /// Subscriber to absolute pose of the robot
   ros::Subscriber sub_abs_pose;
+  /// Subscriber to map stored in the robot
+  std::map<uint, image_transport::Subscriber> sub_map;
 
   // Publishers
   /// Publisher to publish velocity commands
   ros::Publisher pub_cmd_vel;
+  /// Publisher to publish map stored in the robot
+  image_transport::Publisher pub_map;
 
   // client
   /// client to access the service which give the neighbors of a robot
@@ -137,7 +148,7 @@ class Robot{
   NS_occupancy_grid::occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
   // Constructor
-  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_,
+  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, uint no_of_robots=1,
         std::string nbh_service_name="robot_neighbors",
         double radial_noise=0.01,
         double sensing_radius_=2.0);
@@ -162,6 +173,9 @@ class Robot{
   // base pose ground truth Callback method
   void base_pose_ground_truth_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
+  // Update the map of the robot based on the map information of its neighbors
+  void update_map_callback(const sensor_msgs::ImageConstPtr& msg, uint nbh_id);
+
   // Callback function to return the map
   bool return_map(map_sharing_info_based_exploration::get_map::Request& req,
                map_sharing_info_based_exploration::get_map::Response& res);
@@ -169,6 +183,7 @@ class Robot{
   // Publishers
   void publish(geometry_msgs::Twist velocity);
   void publish();
+  void publish_map();
 
   // get functions
   int get_robot_id() const {

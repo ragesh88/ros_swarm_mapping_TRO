@@ -65,6 +65,14 @@ int main(int argc, char** argv)
     ROS_ERROR("Need to provide robot id");
   }
 
+  std::string no_of_robots;
+  if (cml_parser["-n"])
+  {
+    no_of_robots = cml_parser("-n");
+  }else{
+    ROS_ERROR("Need to provide number of robots n");
+  }
+
   // Initializing the ROS node
   std::string node_name{"MI_wanderer_node_" + robot_number};
   ros::init(argc, argv, node_name);
@@ -96,7 +104,8 @@ int main(int argc, char** argv)
   NS_my_planner::base_planner planner{50, 0, velocity};
 
   // Create a robot object
-  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner};
+  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner,
+                   static_cast<uint>(std::stoi(robot_number))};
 
   // Assigning the map object to the robot
   robot.occ_grid_map = &occ_grid;
@@ -119,9 +128,9 @@ int main(int argc, char** argv)
   while (ros::ok()){
     // Publish, Spin and Sleep
     //ROS_INFO("\n Ros time now is %f ", ros::Time::now().toSec());
-    robot.move();
+    //robot.move();
     robot.build_map();
-    robot.merge_map();
+    //robot.merge_map();
     // to do some action every 20 seconds
     long unsigned int time_now = static_cast<long unsigned int>(ros::Time::now().toSec());
     if (time_now%30 == 0 &&

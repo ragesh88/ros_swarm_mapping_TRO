@@ -23,13 +23,16 @@ using namespace NS_my_robot;
 
 // constructors
 
-Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, std::string nbh_service_name,
-             double radial_noise, double sensing_radius_):
+Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, uint no_of_robots,
+             std::string nbh_service_name,
+             double radial_noise,
+             double sensing_radius_):
     robot_id{robot_id_},
     planner{planner_},
     abs_pose{0.0, 0.0, 0.0},
     sensing_radius{sensing_radius_},
-    last_communication(robot_id_+1),
+    last_communication(no_of_robots),
+    it{nh},
     get_map_service_name{"get_map_"},
     avoidCount{0},
     randCount{0}
@@ -67,21 +70,33 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
   sub_abs_pose = nh.subscribe(robot_name + "/base_pose_ground_truth", 10,
                               &Robot::base_pose_ground_truth_callback, this);
 
+  // Setting up the subscriber to get the map of the robots
+  for(int i=0; i<no_of_robots; i++){
+    if(i != robot_id_){
+      sub_map[i] = it.subscribe(robot_name + "/map", 2, boost::bind(&Robot::update_map_callback,this,_1, i));
+    }
+  }
+
   // Setting up the publisher to command velocity
   pub_cmd_vel = nh.advertise<geometry_msgs::Twist>(robot_name + "/cmd_vel", 100);
+
+  // Setting up the publisher to sent maps stored in the robot
+  pub_map = it.advertise(robot_name + "/map", 2);
 
   // Setting up the client for neighbor service
   get_nbh_client = nh.serviceClient<map_sharing_info_based_exploration::neighbors>(nbh_service_name);
 
 
   // Setting up the client for getting map from other robots
-  for (int i=0; i <= robot_id_; i++){
+  for (int i=0; i < no_of_robots; i++){
     get_map_client.emplace_back(nh.serviceClient<map_sharing_info_based_exploration::get_map>(get_map_service_name +
                                                                                               std::to_string(i)));
   }
 
   // Setting up the service to return the map
   map_service = nh.advertiseService(get_map_service_name+std::to_string(robot_id_), &Robot::return_map, this);
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,6 +128,19 @@ void Robot::publish()
   }
 
   pub_cmd_vel.publish(velocity);
+}
+
+void Robot::publish_map()
+/**
+ * Publishes the map stored in the robot
+ */
+{
+  update_neighbors();
+  if (!nbh_ids.empty()){
+    // publish only if there are neighboring robots
+    auto msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", occ_grid_map->og_).toImageMsg();
+    pub_map.publish(msg);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,12 +198,22 @@ bool Robot::return_map(map_sharing_info_based_exploration::get_map::Request& req
  * @return : the success or failure of the callback
  */
 {
+  ROS_INFO("started the service of %d",robot_id);
   sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", occ_grid_map->og_).toImageMsg();
   res.map = *msg;
-  // TODO uncomment after debugging
-  ROS_INFO("print map height %d",res.map.height);
-  ROS_INFO("print map width %d",res.map.width);
+  // TODO comment after debugging
+  ROS_INFO("finished the service of %d",robot_id);
   return true;
+}
+
+void Robot::update_map_callback(const sensor_msgs::ImageConstPtr& msg, uint nbh_id)
+/**
+ * A callback function for subscribing to the map stored in the robots and updates the robot's map based on a protocol
+ * @param msg : msg containing the map stored in neighbor robot
+ * @param nbh_id : the id of the neighbor robot
+ */
+{
+
 }
 
 // velocity update function
@@ -475,7 +513,7 @@ void merger(cv::Mat &map1, const cv::Mat &map2)
   tempMap1 = tempMap1.mul(tempMap2);
   cv::sqrt(tempMap1, tempMap2);
   tempMap2.convertTo(map1, CV_8U);
-  ROS_ERROR("finished merging");
+  ROS_INFO("finished merging");
 
 }
 
@@ -486,26 +524,39 @@ void Robot::merge_map()
 {
   // check if a robots exist in the neighbourhood by updating the neighbours
   update_neighbors();
+  // TODO comment the printing code below after debugging
+  if (!nbh_ids.empty()){
+    ROS_INFO("The neighbors of the robot");
+    for(const auto nbh:nbh_ids){
+      ROS_INFO("%d ", nbh);
+    }
+  }
   // do the rest only if there are robots around the neighbourhood
   if (!nbh_ids.empty()){
     // iterate through each neighbouring robots
     for(const auto nbh : nbh_ids){
       // encountering a robot with id greater than what is stored for the first time
-      if(nbh > last_communication.size()-1){
-        last_communication.resize(nbh+1,0.0); // resize last_communication vector
+      if(nbh > (last_communication.size()-1)) {
+        last_communication.resize(nbh + 1, 0.0); // resize last_communication vector
         // update the client objects
-        for(int i=get_map_client.size(); i<=nbh; i++){
+        for (int i = get_map_client.size(); i <= nbh; i++) {
           get_map_client.emplace_back(nh.serviceClient<map_sharing_info_based_exploration::get_map>(
               get_map_service_name + std::to_string(i)));
         }
+      }
+
         // check if ample time has past since the map merger
         if (last_communication[nbh] + comm_delay < ros::Time::now().toSec()){
+          ROS_INFO("inside condition");
           // use a client to get the map of the neighbour
           map_sharing_info_based_exploration::get_map srv; // service object
+          ROS_INFO("calling map service");
           bool success = get_map_client[nbh].call(srv);
+          ROS_INFO("calling map service");
           if(success){
             // if the service call was successful merge maps
             auto map = cv_bridge::toCvCopy(srv.response.map, srv.response.map.encoding);
+            ROS_INFO("Merging the maps of robots %d and %d", robot_id, nbh);
             merger(occ_grid_map->og_, map->image);
           }else{
             ROS_ERROR("Failed to call get map service of robot with id %d by robot %d", nbh, robot_id);
@@ -513,7 +564,7 @@ void Robot::merge_map()
 
           last_communication[nbh] = ros::Time::now().toSec();
         }
-      }
+
     }
   }
 }

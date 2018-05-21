@@ -6,8 +6,8 @@
     <node pkg="map_sharing_info_based_exploration" type="neighbors_srv" name="Neighbors_node" args="-n 3"/>
 
     <!-- Start the C++ executables as nodes to perform wanderer motion of the robots -->
-    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_sim" name="MI_wanderer_node_0" args="-id 0"/>
-    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_sim" name="MI_wanderer_node_1" args="-id 1"/>
-    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_sim" name="MI_wanderer_node_2" args="-id 2"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_sim" name="MI_wanderer_node_0" args="-id 0 -n 3"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_sim" name="MI_wanderer_node_1" args="-id 1 -n 3"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_sim" name="MI_wanderer_node_2" args="-id 2 -n 3"/>
 
 </launch>
