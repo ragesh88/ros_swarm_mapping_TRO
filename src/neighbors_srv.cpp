@@ -146,6 +146,7 @@ bool Neighbors::get_robot_neighbour(map_sharing_info_based_exploration::neighbor
       res.neighbors.emplace_back(i);
     }
   }
+  return true;
 }
 
 

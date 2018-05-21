@@ -23,18 +23,22 @@ using namespace NS_my_robot;
 
 // constructors
 
-Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, double radial_noise):
+Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, std::string nbh_service_name,
+             double radial_noise, double sensing_radius_):
     robot_id{robot_id_},
     planner{planner_},
     abs_pose{0.0, 0.0, 0.0},
+    sensing_radius{sensing_radius_},
     avoidCount{0},
     randCount{0}
 
 /**
  * Constructor for the robot class
  * @param robot_id_ : the id number of the robot
- * @param laser_sensor_: the parameters for the laser sensor
  * @param robot_name_ : the common name for the robot
+ * @param planner_ : the planner object pointer
+ * @param radial_noise : the variance of the radial noise of the range sensor
+ * @param sensing_radius_ : the sensing radius of the robot
  */
 {
   robot_name = robot_name_ + std::to_string(robot_id_);
@@ -63,6 +67,9 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
 
   // Setting up the publisher to command velocity
   pub_cmd_vel = nh.advertise<geometry_msgs::Twist>(robot_name + "/cmd_vel", 100);
+
+  // Setting up the client for neighbor service
+  get_nbh_client = nh.serviceClient<map_sharing_info_based_exploration::neighbors>(nbh_service_name);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +187,27 @@ void Robot::reset_velocity()
   velocity.angular.x = 0;
   velocity.angular.y = 0;
   velocity.angular.z = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Robot::update_neighbors()
+/**
+ * the method to update the neighbours of a robot using a ros service
+ */
+{
+  map_sharing_info_based_exploration::neighbors nbh_srv;
+  nbh_srv.request.robot_id = robot_id;
+  nbh_srv.request.radius = sensing_radius;
+  bool success = get_nbh_client.call(nbh_srv);
+  if (success){
+    // if the service call is successful copy the neighbor ids to the variable
+    nbh_ids.assign(nbh_srv.response.neighbors.begin(), nbh_srv.response.neighbors.end());
+  } else{
+    ROS_ERROR("Failed to call neighbor service");
+  }
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////

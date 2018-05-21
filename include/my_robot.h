@@ -31,6 +31,9 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
 
+// service header
+#include "map_sharing_info_based_exploration/neighbors.h"
+
 // C++ library header files
 #include <iostream>
 #include <string>
@@ -78,11 +81,14 @@ class Robot{
   geometry_msgs::Twist velocity;
   /// To store and update robot position using true position data
   Pose abs_pose;
+  /// the sensing radius of the robot
+  double sensing_radius;
   /// Obstacle avoidance variable
   long int avoidCount, randCount;
   /// the attribute to store the laser scan message
-  //std::vector<double> laser_scan;
   NS_occupancy_grid::LaserSensor laser_sensor;
+  /// vector to store the neighbor robot ids
+  std::vector<uint> nbh_ids;
   /// the robot store their time of encounter with others(seconds)
   std::vector<double> last_communication;
   /// The pointer to the planner
@@ -105,6 +111,9 @@ class Robot{
   // Publishers
   ros::Publisher pub_cmd_vel;
 
+  // client
+  ros::ServiceClient get_nbh_client;
+
  public:
 
   /// To display output
@@ -113,7 +122,10 @@ class Robot{
   NS_occupancy_grid::occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
   // Constructor
-  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, double radial_noise=0.01);
+  Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_,
+        std::string nbh_service_name="robot_neighbors",
+        double radial_noise=0.01,
+        double sensing_radius_=2.0);
 
   // TODO use a service to identify if any robot is nearby
   // Static variable to generate robot id
@@ -158,6 +170,8 @@ class Robot{
   void set_turn_speed(double a);
 
   void reset_velocity();
+
+  void update_neighbors();
 
   void move();
 

@@ -105,7 +105,7 @@ pioneer2dx
   #name "pio1"
   # for identification using fiducial sensor
   #fiducial_return 1
-  pose [ -6.946 -3.1 0.000 0.000 ] 
+  pose [ -1.0 -5.1 0.000 0.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -137,7 +137,7 @@ pioneer2dx
   #name "pio2"
   # for identification using fiducial sensor
   #fiducial_return 1
-  pose [ -2.946 -3.1 0.000 0.000 ] 
+  pose [ -2.946 -4.5 0.000 0.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 

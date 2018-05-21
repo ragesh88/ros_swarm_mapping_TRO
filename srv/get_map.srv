@@ -1,0 +1,3 @@
+# the service gives the map stored in the robot
+---
+sensor_msgs/Image map
