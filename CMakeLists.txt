@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   sensor_msgs
+  cv_bridge
 
 )
 
@@ -71,6 +72,7 @@ SET(OpenCV_USED_LIBS opencv_core opencv_imgproc opencv_highgui)
  add_service_files(
    FILES
    neighbors.srv
+   get_map.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -85,7 +87,7 @@ SET(OpenCV_USED_LIBS opencv_core opencv_imgproc opencv_highgui)
    DEPENDENCIES
    std_msgs
 #   geometry_msgs
-#   sensor_msgs
+   sensor_msgs
  )
 
 ################################################
@@ -120,7 +122,7 @@ SET(OpenCV_USED_LIBS opencv_core opencv_imgproc opencv_highgui)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES map_sharing_info_based_exploration
-  CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs nav_msgs
+  CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs nav_msgs cv_bridge
 #  DEPENDS system_lib
 )
 

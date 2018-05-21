@@ -29,6 +29,8 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
     planner{planner_},
     abs_pose{0.0, 0.0, 0.0},
     sensing_radius{sensing_radius_},
+    last_communication(robot_id_+1),
+    get_map_service_name{"get_map_"},
     avoidCount{0},
     randCount{0}
 
@@ -70,6 +72,16 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
 
   // Setting up the client for neighbor service
   get_nbh_client = nh.serviceClient<map_sharing_info_based_exploration::neighbors>(nbh_service_name);
+
+
+  // Setting up the client for getting map from other robots
+  for (int i=0; i <= robot_id_; i++){
+    get_map_client.emplace_back(nh.serviceClient<map_sharing_info_based_exploration::get_map>(get_map_service_name +
+                                                                                              std::to_string(i)));
+  }
+
+  // Setting up the service to return the map
+  map_service = nh.advertiseService(get_map_service_name+std::to_string(robot_id_), &Robot::return_map, this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +158,24 @@ void Robot::base_pose_ground_truth_callback(const nav_msgs::Odometry::ConstPtr& 
   float cos_y = 1.0 - 2.0 *(msg->pose.pose.orientation.y * msg->pose.pose.orientation.y +
                             msg->pose.pose.orientation.z * msg->pose.pose.orientation.z);
   abs_pose.a = atan2(sin_y, cos_y);
+}
+
+
+bool Robot::return_map(map_sharing_info_based_exploration::get_map::Request& req,
+                map_sharing_info_based_exploration::get_map::Response& res)
+/**
+ * This callback function returns the map of the robot as an image sensor message
+ * @param req : request object
+ * @param res : response object
+ * @return : the success or failure of the callback
+ */
+{
+  sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", occ_grid_map->og_).toImageMsg();
+  res.map = *msg;
+  // TODO uncomment after debugging
+  ROS_INFO("print map height %d",res.map.height);
+  ROS_INFO("print map width %d",res.map.width);
+  return true;
 }
 
 // velocity update function
@@ -426,6 +456,37 @@ void Robot::build_map()
 
   }
 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Robot::merge_map()
+/**
+ * The function merge the map between robot and its neighbors
+ */
+{
+  // check if a robots exist in the neighbourhood by updating the neighbours
+  update_neighbors();
+  // do the rest only if there are robots around the neighbourhood
+  if (!nbh_ids.empty()){
+    // iterate through each neighbouring robots
+    for(const auto nbh : nbh_ids){
+      // encountering a robot with id greater than what is stored for the first time
+      if(nbh > last_communication.size()-1){
+        last_communication.resize(nbh+1,0.0); // resize last_communication vector
+        // update the client objects
+        for(int i=get_map_client.size(); i<=nbh; i++){
+          get_map_client.emplace_back(nh.serviceClient<map_sharing_info_based_exploration::get_map>(
+              get_map_service_name + std::to_string(i)));
+        }
+        // check if ample time has past since the map merger
+        if (last_communication[nbh] + comm_delay < ros::Time::now().toSec()){
+          // merger();
+          last_communication[nbh] = ros::Time::now().toSec();
+        }
+      }
+    }
+  }
 }
 
 

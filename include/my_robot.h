@@ -30,9 +30,11 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
+#include <cv_bridge/cv_bridge.h>
 
 // service header
 #include "map_sharing_info_based_exploration/neighbors.h"
+#include "map_sharing_info_based_exploration/get_map.h"
 
 // C++ library header files
 #include <iostream>
@@ -89,6 +91,8 @@ class Robot{
   NS_occupancy_grid::LaserSensor laser_sensor;
   /// vector to store the neighbor robot ids
   std::vector<uint> nbh_ids;
+  /// the base name of the map service
+  std::string get_map_service_name;
   /// the robot store their time of encounter with others(seconds)
   std::vector<double> last_communication;
   /// The pointer to the planner
@@ -105,14 +109,25 @@ class Robot{
   ros::NodeHandle nh;
 
   // Subscribers
+  /// Subscriber to laser scan data
   ros::Subscriber sub_laser_scan;
+  /// Subscriber to absolute pose of the robot
   ros::Subscriber sub_abs_pose;
 
   // Publishers
+  /// Publisher to publish velocity commands
   ros::Publisher pub_cmd_vel;
 
   // client
+  /// client to access the service which give the neighbors of a robot
   ros::ServiceClient get_nbh_client;
+  /// clients to access the service which give the map stored inside other robot
+  std::vector<ros::ServiceClient> get_map_client;
+
+  // service
+  /// service which returns the map stored in the robot
+  ros::ServiceServer map_service;
+
 
  public:
 
@@ -147,6 +162,10 @@ class Robot{
   // base pose ground truth Callback method
   void base_pose_ground_truth_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
+  // Callback function to return the map
+  bool return_map(map_sharing_info_based_exploration::get_map::Request& req,
+               map_sharing_info_based_exploration::get_map::Response& res);
+
   // Publishers
   void publish(geometry_msgs::Twist velocity);
   void publish();
@@ -176,6 +195,8 @@ class Robot{
   void move();
 
   void build_map();
+
+  void merge_map();
 
   void write_map_image();
 
