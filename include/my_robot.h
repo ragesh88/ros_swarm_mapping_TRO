@@ -132,12 +132,12 @@ class Robot{
   // client
   /// client to access the service which give the neighbors of a robot
   ros::ServiceClient get_nbh_client;
-  /// clients to access the service which give the map stored inside other robot
-  std::vector<ros::ServiceClient> get_map_client;
+  // clients to access the service which give the map stored inside other robot
+  //std::vector<ros::ServiceClient> get_map_client;
 
   // service
-  /// service which returns the map stored in the robot
-  ros::ServiceServer map_service;
+  // service which returns the map stored in the robot
+  //ros::ServiceServer map_service;
 
 
  public:
