@@ -206,6 +206,8 @@ bool Robot::return_map(map_sharing_info_based_exploration::get_map::Request& req
   return true;
 }
 
+void merger(cv::Mat &map1, const cv::Mat &map2);
+
 void Robot::update_map_callback(const sensor_msgs::ImageConstPtr& msg, uint nbh_id)
 /**
  * A callback function for subscribing to the map stored in the robots and updates the robot's map based on a protocol
@@ -214,6 +216,16 @@ void Robot::update_map_callback(const sensor_msgs::ImageConstPtr& msg, uint nbh_
  */
 {
 
+  // do the rest only if there are robots around the neighbourhood and nbh_id belongs to the neighbors
+  if (!nbh_ids.empty() && std::find(nbh_ids.begin(), nbh_ids.end(), nbh_id) != nbh_ids.end()){
+    // check if ample time has past since the map merger
+    if (last_communication[nbh_id] + comm_delay < ros::Time::now().toSec()){
+      // merge the neighbor map with robot's
+      ROS_INFO("Merging the maps of robots %d and %d", robot_id, nbh_id);
+      merger(occ_grid_map->og_, cv_bridge::toCvShare(msg, "mono8")->image);
+      last_communication[nbh_id] = ros::Time::now().toSec();
+    }
+  }
 }
 
 // velocity update function

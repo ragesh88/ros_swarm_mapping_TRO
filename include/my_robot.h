@@ -38,6 +38,7 @@
 #include "map_sharing_info_based_exploration/get_map.h"
 
 // C++ library header files
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>

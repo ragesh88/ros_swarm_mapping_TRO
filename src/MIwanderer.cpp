@@ -128,7 +128,7 @@ int main(int argc, char** argv)
   while (ros::ok()){
     // Publish, Spin and Sleep
     //ROS_INFO("\n Ros time now is %f ", ros::Time::now().toSec());
-    //robot.move();
+    robot.move();
     robot.build_map();
     //robot.merge_map();
     // to do some action every 20 seconds
@@ -136,9 +136,11 @@ int main(int argc, char** argv)
     if (time_now%30 == 0 &&
         (pre_time != time_now)){
       //ROS_INFO("\n In condition ");
-      //robot.write_map_image();
+      robot.write_map_image();
       pre_time = time_now;
     }
+    robot.update_neighbors();
+    robot.publish_map();
     ros::spinOnce();
     loop_rate.sleep();
   }

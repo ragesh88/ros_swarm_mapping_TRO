@@ -30,7 +30,7 @@
 
 
 // local header files
-
+#include "occupancyGrid.hpp"
 
 // typedef types
 typedef double meters;
@@ -119,6 +119,8 @@ class base_planner {
  protected:
 
   Path path;
+  /// check if the planner is using map
+  bool USING_MAP;
 
  public:
 
@@ -165,6 +167,11 @@ class base_planner {
     return &path;
   }
 
+  bool is_using_map(){
+    /// check if the planner is using a map for planning
+    return USING_MAP;
+  }
+
   // set functions
 
   void set_planTime(double time) {
@@ -186,6 +193,10 @@ class base_planner {
   // other functions
   ///The function generates path for a base planner
   virtual void generate_path(double start_time);
+
+  /// The function generates path for a derive planner class
+  /// the non trivial implementation can be found in MI_levyWalk_planner class
+  virtual void generate_path(double start_time, NS_occupancy_grid::occupancyGrid2D<double, int>* map){}
 
   void delete_path() {
     /// The function deletes the path stored in the variable
