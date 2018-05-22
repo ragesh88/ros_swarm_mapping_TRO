@@ -114,8 +114,8 @@ int main(int argc, char** argv)
   NS_my_planner::MI_levyWalk_planner MI_planner{0, startP, velocity, fsm, NS_my_planner::CSQMI, 5};
 
   // Create a robot object
-  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &MI_planner,
-                   static_cast<uint>(std::stoi(robot_number)), radial_noise};
+  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner,
+                   static_cast<uint>(std::stoi(no_of_robots)), radial_noise};
 
   // Assigning the map object to the robot
   robot.occ_grid_map = &occ_grid;
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
     if (time_now%30 == 0 &&
         (pre_time != time_now)){
       //ROS_INFO("\n In condition ");
-      robot.write_map_image();
+      //robot.write_map_image();
       pre_time = time_now;
     }
     robot.update_neighbors();

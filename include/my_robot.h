@@ -58,9 +58,8 @@
 #include "occupancyGrid.hpp"
 
 // typedef types
-typedef double meters;
 
-// TODO rewrite the map merging functionality
+
 
 namespace NS_my_robot{
 
@@ -154,19 +153,7 @@ class Robot{
         std::string nbh_service_name="robot_neighbors",
         double sensing_radius_=2.0);
 
-  // TODO use a service to identify if any robot is nearby
-  // Static variable to generate robot id
-  //static int gen_id;
-  //Static variable to store the pointers to all robots
-  // in the swarm
-  //static std::vector<Robot *> swarm;
 
-  // Static member function
-  //static void update_id();
-  // Static function to update the static variable swarm
-  //static void swarm_update(Robot* member);
-  // Static function if a robot is close to another robot by a distance d
-  //static bool any_neighbor(int robot_id, std::vector<int>& neighbors);
 
   // Laser scanner Callback Method
   void laser_scanner_callback(const sensor_msgs::LaserScan::ConstPtr& msg);

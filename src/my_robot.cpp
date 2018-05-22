@@ -28,6 +28,7 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
              std::string nbh_service_name,
              double sensing_radius_):
     robot_id{robot_id_},
+    robot_name{robot_name_},
     planner{planner_},
     abs_pose{0.0, 0.0, 0.0},
     sensing_radius{sensing_radius_},
@@ -46,7 +47,7 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
  * @param sensing_radius_ : the sensing radius of the robot
  */
 {
-  robot_name = robot_name_ + std::to_string(robot_id_);
+  std:: string robot_name_aug = robot_name_ + std::to_string(robot_id_);
 
   laser_sensor.range_noise_const = radial_noise;
 
@@ -63,25 +64,27 @@ Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planne
 
 
   // Setting up the subscriber to laser ranger sensors
-  sub_laser_scan = nh.subscribe(robot_name + "/base_scan", 10,
+  sub_laser_scan = nh.subscribe(robot_name_aug + "/base_scan", 10,
                                 &Robot::laser_scanner_callback, this);
 
   // Setting up the subscriber to error free gps pose
-  sub_abs_pose = nh.subscribe(robot_name + "/base_pose_ground_truth", 10,
+  sub_abs_pose = nh.subscribe(robot_name_aug + "/base_pose_ground_truth", 10,
                               &Robot::base_pose_ground_truth_callback, this);
+
 
   // Setting up the subscriber to get the map of the robots
   for(int i=0; i<no_of_robots; i++){
     if(i != robot_id_){
-      sub_map[i] = it.subscribe(robot_name + "/map", 2, boost::bind(&Robot::update_map_callback,this,_1, i));
+      sub_map[i] = it.subscribe(robot_name + std::to_string(i) + "/map", 5,
+                                boost::bind(&Robot::update_map_callback,this,_1, i));
     }
   }
 
   // Setting up the publisher to command velocity
-  pub_cmd_vel = nh.advertise<geometry_msgs::Twist>(robot_name + "/cmd_vel", 100);
+  pub_cmd_vel = nh.advertise<geometry_msgs::Twist>(robot_name_aug + "/cmd_vel", 100);
 
   // Setting up the publisher to sent maps stored in the robot
-  pub_map = it.advertise(robot_name + "/map", 2);
+  pub_map = it.advertise(robot_name_aug + "/map", 5);
 
   // Setting up the client for neighbor service
   get_nbh_client = nh.serviceClient<map_sharing_info_based_exploration::neighbors>(nbh_service_name);
@@ -135,7 +138,6 @@ void Robot::publish_map()
  * Publishes the map stored in the robot
  */
 {
-  update_neighbors();
   if (!nbh_ids.empty()){
     // publish only if there are neighboring robots
     auto msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", occ_grid_map->og_).toImageMsg();
@@ -222,10 +224,15 @@ void Robot::update_map_callback(const sensor_msgs::ImageConstPtr& msg, uint nbh_
     if (last_communication[nbh_id] + comm_delay < ros::Time::now().toSec()){
       // merge the neighbor map with robot's
       ROS_INFO("Merging the maps of robots %d and %d", robot_id, nbh_id);
+      // TODO remove after testing
+      //write_map_image();
       merger(occ_grid_map->og_, cv_bridge::toCvShare(msg, "mono8")->image);
+      //write_map_image();
       last_communication[nbh_id] = ros::Time::now().toSec();
     }
   }
+
+
 }
 
 // velocity update function
@@ -294,7 +301,7 @@ void Robot::update_neighbors()
 
 void Robot::move()
 /**
- *
+ * the method to move the robot
  */
 {
   /// The function moves the robot according to the planner object
@@ -529,7 +536,6 @@ void merger(cv::Mat &map1, const cv::Mat &map2)
   tempMap1 = tempMap1.mul(tempMap2);
   cv::sqrt(tempMap1, tempMap2);
   tempMap2.convertTo(map1, CV_8U);
-  ROS_INFO("finished merging");
 
 }
 
@@ -540,13 +546,7 @@ void Robot::merge_map()
 {
   // check if a robots exist in the neighbourhood by updating the neighbours
   update_neighbors();
-  // TODO comment the printing code below after debugging
-  if (!nbh_ids.empty()){
-    ROS_INFO("The neighbors of the robot");
-    for(const auto nbh:nbh_ids){
-      ROS_INFO("%d ", nbh);
-    }
-  }
+
   // do the rest only if there are robots around the neighbourhood
   if (!nbh_ids.empty()){
     // iterate through each neighbouring robots
@@ -596,9 +596,9 @@ void Robot::write_map_image()
 {
   std::string count = std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
-  std::string filename = data_path + robot_name + "_" + count + img_type;
+  std::string filename = data_path + robot_name + std::to_string(robot_id) + "_" + count + img_type;
   //std::cout<<"\n writing map as "<<filename<<std::endl;
-  ROS_INFO("\n writing map as %s \n", filename.c_str());
+  ROS_ERROR("\n writing map as %s \n", filename.c_str());
   try {
     // Writing as an image is at least 20 times faster than writing to an text file
     //auto start = clock();
@@ -627,8 +627,8 @@ void Robot::write_map_txt()
 {
   std::string count = std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
-  std::string filename = data_path + robot_name + "_" + count + img_type;
-  //std::cout<<"\n writing map as "<<filename<<std::endl;
+  std::string filename = data_path + robot_name + std::to_string(robot_id)+ "_" + count + img_type;
+  ROS_INFO("\n writing map as %s \n", filename.c_str());
   try {
     // Writing as an image is at least 20 times faster than writing to an text file
     //auto start = clock();
@@ -677,18 +677,18 @@ void Robot::write_map_entropy(std::string path, std::string prefix)
  */
 {
   if (map_entropy.empty()){
-    std::cout<<"\nEntropy is not computed\n";
+    ROS_ERROR("Entropy is not computed");
     return;
   }
   std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_entropy.txt"};
-  std::cout<<"\n Writing to : "<<filename<<std::endl;
+  ROS_INFO(" writing map as %s ", filename.c_str());
 
   // write the list to a text file
 
   std::ofstream f_out(filename);
 
   if(!f_out) {
-    std::cout<<"File not opened \n";
+    ROS_ERROR("File not opened");
     return;
   }
 
@@ -711,18 +711,18 @@ void Robot::write_map_coverage(std::string path, std::string prefix)
  */
 {
   if (map_coverage.empty()){
-    std::cout<<"\nCoverage is not computed\n";
+    ROS_ERROR("Coverage is not computed");
     return;
   }
   std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_coverage.txt"};
-  std::cout<<"\n Writing to : "<<filename<<std::endl;
+  ROS_INFO(" writing map as %s ", filename.c_str());
 
   // write the list to a text file
 
   std::ofstream f_out(filename);
 
   if(!f_out) {
-    std::cout<<"File not opened \n";
+    ROS_ERROR("File not opened");
     return;
   }
 
