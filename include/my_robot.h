@@ -150,8 +150,8 @@ class Robot{
 
   // Constructor
   Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, uint no_of_robots=1,
-        std::string nbh_service_name="robot_neighbors",
         double radial_noise=0.01,
+        std::string nbh_service_name="robot_neighbors",
         double sensing_radius_=2.0);
 
   // TODO use a service to identify if any robot is nearby

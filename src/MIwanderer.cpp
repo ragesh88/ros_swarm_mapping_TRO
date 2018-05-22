@@ -100,12 +100,22 @@ int main(int argc, char** argv)
   velocity.angular.y=0;
   velocity.angular.z=turnSpeed;
 
+  Pose startP{0.0, 0.0, 0.0};
+
+  // radial range sensor noise
+  double radial_noise = 0.01;
+
+  // forward sensor model parameter
+  NS_my_planner::F_S_M_parameters fsm;
+  fsm.sigma = radial_noise;
+
   // Create a planner object
-  NS_my_planner::base_planner planner{50, 0, velocity};
+  NS_my_planner::base_planner planner{50, 0, startP, velocity};
+  NS_my_planner::MI_levyWalk_planner MI_planner{0, startP, velocity, fsm, NS_my_planner::CSQMI, 5};
 
   // Create a robot object
-  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner,
-                   static_cast<uint>(std::stoi(robot_number))};
+  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &MI_planner,
+                   static_cast<uint>(std::stoi(robot_number)), radial_noise};
 
   // Assigning the map object to the robot
   robot.occ_grid_map = &occ_grid;

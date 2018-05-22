@@ -70,8 +70,10 @@ int main(int argc, char** argv)
   velocity.angular.y=0;
   velocity.angular.z=turnSpeed;
 
+  Pose startP{0.0, 0.0, 0.0};
+
   // Create a planner object
-  NS_my_planner::base_planner planner{50, 0, velocity};
+  NS_my_planner::base_planner planner{50, 0, startP, velocity};
 
   // Create a robot object
   rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner};

@@ -24,8 +24,8 @@ using namespace NS_my_robot;
 // constructors
 
 Robot::Robot(uint robot_id_, std::string robot_name_, NS_my_planner::base_planner* planner_, uint no_of_robots,
-             std::string nbh_service_name,
              double radial_noise,
+             std::string nbh_service_name,
              double sensing_radius_):
     robot_id{robot_id_},
     planner{planner_},
@@ -454,8 +454,12 @@ void Robot::move()
       planner->set_startPose(abs_pose);
       try {
         // try to generate a new path
-        // TODO change the one below after a planner based on the map is implemented
-        planner->generate_path(ros::Time::now().toSec());
+        if (planner->is_using_map()) { // call methods based if the planner uses map or not
+          planner->generate_path(ros::Time::now().toSec(), occ_grid_map);
+        } else{
+          planner->generate_path(ros::Time::now().toSec());
+        }
+
       }
       catch (const char *error) {
         std::cerr << error << std::endl;
