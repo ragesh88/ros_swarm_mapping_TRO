@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // My naming conventions for the project
-// Put header files separated different category and in alphabetical order
+// Put header files in separate categories and in alphabetical order
 // unless there some compatibility issue between the header files
 // macros and const : ALL_IN_CAPS
 // namespace : NS_prefix_small_letter_with_underscore
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
   NS_my_planner::MI_levyWalk_planner MI_planner{0, startP, velocity, fsm, NS_my_planner::CSQMI, 5};
 
   // Create a robot object
-  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &planner,
+  rob::Robot robot{static_cast<uint>(std::stoi(robot_number)), std::string{"robot_"}, &MI_planner,
                    static_cast<uint>(std::stoi(no_of_robots)), radial_noise};
 
   // Assigning the map object to the robot
@@ -125,13 +125,7 @@ int main(int argc, char** argv)
   // ROS loop rate
   ros::Rate loop_rate(10);
 
-//  geometry_msgs::Twist cmd_vel_msg;
-//  cmd_vel_msg.linear.x=0.0;
-//  cmd_vel_msg.linear.y=0.0;
-//  cmd_vel_msg.linear.z=0.0;
-//  cmd_vel_msg.angular.x=0.0;
-//  cmd_vel_msg.angular.y=0.0;
-//  cmd_vel_msg.angular.z=0.0;
+
 
   long unsigned int pre_time=0;
 
