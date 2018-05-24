@@ -10,7 +10,7 @@ LAUNCH_FILE=../launch/multi_robot.launch
 
 echo "<launch>" > $LAUNCH_FILE
 
-echo "<node pkg=\"stage_ros\" type=\"stageros\" name=\"stageros\" args=\"../worlds/test.world\" respawn=\"false\"/>" >> $LAUNCH_FILE
+echo "<node pkg=\"stage_ros\" type=\"stageros\" name=\"stageros\" args=\"\$(find map_sharing_info_based_exploration)/worlds/test.world\" respawn=\"false\"/>" >> $LAUNCH_FILE
 
 echo "<node pkg=\"map_sharing_info_based_exploration\" type=\"neighbors_srv\" name=\"Neighbors_node\" args=\"-n $n\"/>" >> $LAUNCH_FILE
 
@@ -21,4 +21,4 @@ done >> $LAUNCH_FILE
 
 echo -e "</launch>" >> $LAUNCH_FILE
 
-roslaunch $LAUNCH_FILE
+#roslaunch $LAUNCH_FILE
