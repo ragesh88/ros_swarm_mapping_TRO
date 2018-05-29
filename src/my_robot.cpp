@@ -188,6 +188,8 @@ void Robot::base_pose_ground_truth_callback(const nav_msgs::Odometry::ConstPtr& 
   float cos_y = 1.0 - 2.0 *(msg->pose.pose.orientation.y * msg->pose.pose.orientation.y +
                             msg->pose.pose.orientation.z * msg->pose.pose.orientation.z);
   abs_pose.a = atan2(sin_y, cos_y);
+//  if(robot_id==0)
+//  std::cout<<"angle is :"<<abs_pose.a*180/M_PI<<std::endl;
 }
 
 
