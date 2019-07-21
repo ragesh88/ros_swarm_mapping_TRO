@@ -5,7 +5,8 @@
 /**
  * This is the header file for my_robot.cpp. The file contains
  * the prototype of the classes and functions for handling the
- * robot functions for simulating it using Stageros
+ * robot functions for simulating it using Stageros. Stageros is
+ * is the Stage equivalent in ROS.
  */
 
 #ifndef MAP_SHARING_INFO_BASED_EXPLORATION_MY_ROBOT_H
