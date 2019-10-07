@@ -1,0 +1,17 @@
+<launch>
+    <!-- Start the stage simulation headless (without gui)-->
+    <!-- node pkg="stage_ros" type="stageros" name="stageros" args="-g $(find map_sharing_info_based_exploration)/worlds/test.world" respawn="false"/ -->
+
+    <!-- Start the stage simulation with gui-->
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find map_sharing_info_based_exploration)/worlds/test.world" respawn="false"/>
+
+    <!-- Start the service node to find neighbors -->
+    <node pkg="map_sharing_info_based_exploration" type="neighbors_srv" name="Neighbors_node" args="-n 3"/>
+    
+
+    <!-- Start the C++ executables as nodes to perform wanderer motion of the robots -->
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_0" args="-id 0 -n 3 -tr 1"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_1" args="-id 1 -n 3 -tr 1"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_2" args="-id 2 -n 3 -tr 1"/>
+
+</launch>

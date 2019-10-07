@@ -10,6 +10,7 @@ include "mySick.inc"
 quit_time 3600 # 3600 seconds of simulated time
 #quit_time 2 # 900 seconds of simulated time
 
+
 # threads may speed things up here depending on available CPU cores & workload  
 threads 8
 

@@ -28,14 +28,15 @@
 // C++ library header files
 #include <iostream>
 #include <string>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <bits/stdc++.h>
+#include <cstdio>
+#include <boost/filesystem.hpp>
+ #include <bits/stdc++.h>
 
 
 // C library header files
-#include <stdio.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+
 
 // third party libraries
 #include <boost/math/constants/constants.hpp>
@@ -51,6 +52,7 @@
 namespace clp=NS_rag_command_line_parser;
 namespace rob=NS_my_robot;
 namespace map=NS_occupancy_grid;
+namespace bst=boost::filesystem;
 
 
 int main(int argc, char** argv)
@@ -61,7 +63,7 @@ int main(int argc, char** argv)
   std::string trail_no;
 
   // path to store data
-  std::string dt_pth{""};
+  std::string dt_pth{"/home/ragesh/mydisc/data/TRO_ACS/alpha/trail_"};
 
   // parse the inputs
   clp::CommandLineParser cml_parser(argc, argv);
@@ -92,27 +94,42 @@ int main(int argc, char** argv)
   }
 
   // augment the data path with the given information
-  dt_pth += "trail_" + trail_no + "/robot_" + robot_number + "/";
+  dt_pth +=  trail_no + "/";
 
-  // check if the directory exists
-  struct stat info;
-  if (stat(dt_pth, &info) != 0)
+  // check if the directory exists using stat lib
+//  struct stat info;
+//  if (stat(dt_pth.c_str(), &info) != 0)
+//  {
+//      ROS_ERROR("cannot access %s\n", dt_pth.c_str());
+//  } else{
+//      if (info.st_mode & S_IFDIR)
+//      {
+//          // directory exists
+//      } else{
+//          // the directory does not exist
+//          // create one
+//          if (mkdir(dt_pth.c_str(), 0777) == -1)
+//          {
+//              ROS_ERROR("error in creating the folder");
+//          } else{
+//              ROS_INFO("Folder created");
+//          }
+//      }
+//  }
+
+  //  check if the directory exists using boost filesystem
+  bst::path p(dt_pth);
+  // check if the path exist
+  if (bst::exists(p))
   {
-      ROS_ERROR("cannot access %s\n", dt_pth);
-  } else{
-      if (info.st_mode & S_IFDIR)
+      // check if the path points to a directory
+      if (bst::is_directory(p))
       {
-          // directory exists
-      } else{
-          // the directory does not exist
-          // create one
-          if (mkdir(dt_pth, 0777) == -1)
-          {
-              ROS_ERROR("error in creating the folder");
-          } else{
-              ROS_INFO("Folder created");
-          }
+          ROS_INFO("%s exists and is a directory", dt_pth.c_str());
       }
+  }else{
+      // create the directory if it does not exist
+      bst::create_directory(p);
   }
 
 
@@ -191,4 +208,8 @@ int main(int argc, char** argv)
     ros::spinOnce();
     loop_rate.sleep();
   }
+  // compute the coverage value of the map
+  robot.add_map_coverage();
+  // save the data to file
+  robot.write_map_coverage(dt_pth);
 }
