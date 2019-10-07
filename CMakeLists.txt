@@ -181,6 +181,11 @@ ADD_EXECUTABLE(MI_Levy_walker_sim src/command_line_parser.cpp src/my_robot.cpp s
         src/inverse_sensor_model.cpp)
 TARGET_LINK_LIBRARIES(MI_Levy_walker_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
 
+# The MI_Levy_walker executable for the MI based Levy walking with alpha parameter
+ADD_EXECUTABLE(MI_Levy_walker_alpha_sim src/command_line_parser.cpp src/my_robot.cpp src/MIwanderer_alpha.cpp src/planners.cpp
+        src/inverse_sensor_model.cpp)
+TARGET_LINK_LIBRARIES(MI_Levy_walker_alpha_sim ${catkin_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})
+
 # neighbors service excutable to get the neighbors of a robot
 ADD_EXECUTABLE(neighbors_srv src/command_line_parser.cpp src/neighbors_srv.cpp src/planners.cpp)
 TARGET_LINK_LIBRARIES(neighbors_srv ${catkin_LIBRARIES} )

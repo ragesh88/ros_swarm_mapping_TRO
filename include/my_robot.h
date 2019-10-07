@@ -69,7 +69,7 @@ class Robot{
 
   // Constant Private attributes
   /// Path to save the robot map
-  std::string data_path{"/home/ragesh/Documents/catkin_ws/src/map_sharing_info_based_exploration/data/robot"};
+  std::string data_path{"/media/ragesh/Disk1/data/TRO_ACS/alpha/trail_"};
   /// The extension indicating the map image format
   const std::string img_type{".png"};
   /// the robot should not exchange information if the
