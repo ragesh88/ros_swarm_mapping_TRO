@@ -10,8 +10,8 @@
     
 
     <!-- Start the C++ executables as nodes to perform wanderer motion of the robots -->
-    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_0" args="-id 0 -n 3 -tr 1"/>
-    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_1" args="-id 1 -n 3 -tr 1"/>
-    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_2" args="-id 2 -n 3 -tr 1"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_0" args="-id 0 -n 3 -tr 1 -a 1.5"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_1" args="-id 1 -n 3 -tr 1 -a 1.5"/>
+    <node pkg="map_sharing_info_based_exploration" type="MI_Levy_walker_alpha_sim" name="MI_wanderer_node_2" args="-id 2 -n 3 -tr 1 -a 1.5"/>
 
 </launch>

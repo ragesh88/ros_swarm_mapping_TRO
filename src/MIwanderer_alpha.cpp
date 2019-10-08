@@ -29,7 +29,6 @@
 #include <iostream>
 #include <string>
 #include <cstdio>
-#include <boost/filesystem.hpp>
  #include <bits/stdc++.h>
 
 
@@ -40,6 +39,7 @@
 
 // third party libraries
 #include <boost/math/constants/constants.hpp>
+#include <boost/filesystem.hpp>
 #include <opencv2/opencv.hpp>
 
 // local header files
@@ -60,10 +60,19 @@ int main(int argc, char** argv)
   // robot speed parameters
   static const double cruisesSpeed = 0.4;
   static const double turnSpeed = 0.2;
+  static const bool DEBUG = false;
   std::string trail_no;
 
+  // set the ros verbosity level to DEBUG for debugging
+  if (DEBUG)
+  {
+      if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+          ros::console::notifyLoggerLevelsChanged();
+      }
+  }
+
   // path to store data
-  std::string dt_pth{"/home/ragesh/mydisc/data/TRO_ACS/alpha/trail_"};
+  std::string dt_pth{"/home/ragesh/mydisc/data/TRO_ACS/alpha/alpha_"};
 
   // parse the inputs
   clp::CommandLineParser cml_parser(argc, argv);
@@ -77,6 +86,7 @@ int main(int argc, char** argv)
     ROS_ERROR("Need to provide robot id");
   }
 
+  //  Parse input arguments for the number of robots in the team
   std::string no_of_robots;
   if (cml_parser["-n"])
   {
@@ -85,7 +95,17 @@ int main(int argc, char** argv)
     ROS_ERROR("Need to provide number of robots n");
   }
 
+  //  Parse input arguments for the alpha parameter
+  int alpha = 0;
+  std::string alpha_s;
+  if (cml_parser["-n"]) {
+      alpha = static_cast<int>(std::stod(cml_parser("-a"))*100);
+      alpha_s = std::to_string(alpha);
+  } else {
+      ROS_ERROR("Need to alpha value a");
+  }
 
+  // Parse input argument for the trail number
   if (cml_parser["-tr"])
   {
       trail_no = cml_parser("-tr");
@@ -94,7 +114,7 @@ int main(int argc, char** argv)
   }
 
   // augment the data path with the given information
-  dt_pth +=  trail_no + "/";
+  dt_pth +=  alpha_s + "/trail_" + trail_no + "/";
 
   // check if the directory exists using stat lib
 //  struct stat info;
@@ -129,7 +149,7 @@ int main(int argc, char** argv)
       }
   }else{
       // create the directory if it does not exist
-      bst::create_directory(p);
+      bst::create_directories(p);
   }
 
 
@@ -203,6 +223,11 @@ int main(int argc, char** argv)
       //robot.write_map_image();
       pre_time = time_now;
     }
+    // exist the loop if the time is above a predefined one
+//    if (time_now > 200)
+//    {
+//        break;
+//    }
     robot.update_neighbors();
     robot.publish_map();
     ros::spinOnce();
